@@ -1,0 +1,52 @@
+services:
+  rabbitmq:
+    image: rabbitmq
+    ports:
+      - '5672:5672'
+  database:
+    image: postgres:16.0
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres2023
+    ports:
+      - '5432:5432'
+    volumes:
+      - database:/var/lib/postgresql/data
+  auth:
+    build:
+      context: .
+      dockerfile: ./apps/auth/Dockerfile
+      target: development
+    command: npm run start:dev auth
+    ports:
+      - '3001:3001'
+    env_file:
+      - ./apps/auth/.env.dev
+    depends_on:
+      - database
+      - rabbitmq
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+  sales:
+    build:
+      context: .
+      dockerfile: ./apps/sales/Dockerfile
+      target: development
+    command: npm run start:dev sales
+    env_file:
+      - ./apps/sales/.env.dev
+    depends_on:
+      - database
+      - auth
+      - rabbitmq
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - '3000:3000'
+
+volumes:
+  database:
+    driver: local
