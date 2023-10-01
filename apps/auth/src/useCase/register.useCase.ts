@@ -17,9 +17,10 @@ import { UserDetailsDTO } from '../model/dto/userDetailsDTO';
 import { RegisterSubscriptionDto } from '../model/dto/register/registerSubscriptionDTO';
 import { SubscriptionDetailsDTO } from '../model/dto/subscriptionDetailsDTO';
 import * as moment from 'moment';
+import { BaseUseCase, RollbackTypeEnum } from '@app/common/utils/baseUseCase';
 
 Injectable();
-export class RegisterUseCase {
+export class RegisterUseCase extends BaseUseCase {
   constructor(
     @InjectRepository(User) private usersRepository: Repository<User>,
     @InjectRepository(Company) private companyRepository: Repository<Company>,
@@ -27,7 +28,9 @@ export class RegisterUseCase {
     @InjectRepository(Plan) private planRepository: Repository<Plan>,
     @InjectRepository(Subscription)
     private subscriptionRepository: Repository<Subscription>,
-  ) {}
+  ) {
+    super();
+  }
 
   async execute(
     data: RegisterDto,
@@ -48,11 +51,29 @@ export class RegisterUseCase {
     try {
       const user = await this.createUserAndCompany(companyData, userData, role);
 
+      this.rollbackStack.push({
+        object: user,
+        repository: this.usersRepository,
+        type: RollbackTypeEnum.CREATE,
+      });
+
+      this.rollbackStack.push({
+        object: user.company,
+        repository: this.companyRepository,
+        type: RollbackTypeEnum.CREATE,
+      });
+
       if (subscriptionData && user.company) {
         subscription = await this.createSubscription(
           user.company,
           subscriptionData,
         );
+
+        this.rollbackStack.push({
+          object: subscription,
+          repository: this.subscriptionRepository,
+          type: RollbackTypeEnum.CREATE,
+        });
       }
 
       return {
@@ -64,6 +85,8 @@ export class RegisterUseCase {
       };
     } catch (error) {
       console.error(error);
+
+      await this.rollback();
 
       throw new HttpException(
         'Error during user creation',
