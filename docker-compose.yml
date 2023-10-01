@@ -9,6 +9,7 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres2023
+      - POSTGRES_DB=sold-metrics
     ports:
       - '5432:5432'
     volumes:
