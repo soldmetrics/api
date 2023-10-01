@@ -28,7 +28,7 @@ export class ResetPasswordUseCase {
         await mailTransporter.sendMail({
           from: `"Estoque Total" <${process.env.NODEMAILER_USERNAME}>`,
           to: email,
-          subject: 'Troca de senha - Plataforma Estoque-Total',
+          subject: 'Troca de senha - Plataforma Sold Metrics',
           html: `
           <p>Olá ${user.name},</p>
           <p>Você requisitou uma troca de senha. Clique no link abaixo para reseta-lá.</p>
