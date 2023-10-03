@@ -7,11 +7,16 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    const url: string = context.getArgs()[0] ? context.getArgs()[0].url : '';
+    const request = context.getArgs()[0];
+    const location: string = request ? request.url : '';
+    const previousPath =
+      request && request.headers ? request.headers['x-custom-path'] : '';
+    const url = `${previousPath}${location}`;
 
-    return url.startsWith('/auth') ||
-      url.startsWith('/health') ||
-      url.includes('tiny/receive-sale')
+    return url !== 'auth/validateToken' &&
+      (previousPath.startsWith('auth') ||
+        previousPath.startsWith('health') ||
+        location.includes('tiny/receive-sale'))
       ? true
       : super.canActivate(context);
   }

@@ -35,7 +35,7 @@ import {
     DatabaseModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '60m' },
+      signOptions: { expiresIn: '3d' },
     }),
     TypeOrmModule.forFeature([
       User,

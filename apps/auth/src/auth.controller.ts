@@ -10,7 +10,7 @@ import {
 import { HandleResetPasswordDTO } from './model/dto/handleResetPasswordDTO';
 import { RegisterDto } from './model/dto/register/registerDTO';
 
-@Controller('auth')
+@Controller()
 export class AuthController {
   constructor(
     private registerUseCase: RegisterUseCase,
@@ -47,5 +47,12 @@ export class AuthController {
   @HttpCode(200)
   async handleResetPassword(@Body() resetPasswordDto: HandleResetPasswordDTO) {
     return await this.handleResetPasswordUseCase.execute(resetPasswordDto);
+  }
+
+  @Get('/validateToken')
+  @HttpCode(200)
+  async validateToken() {
+    // If the request reached here, the token will be always valid
+    return 'Valid token!';
   }
 }
