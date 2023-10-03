@@ -23,6 +23,12 @@ export class PasswordResetToken {
   @JoinColumn()
   user: User;
 
+  @Column({ length: 6 })
+  code: string;
+
+  @Column({ default: 0 })
+  attempts: number;
+
   @Column()
   expiryDate: Date;
 
@@ -30,9 +36,10 @@ export class PasswordResetToken {
   @CreateDateColumn()
   createdAt: Date;
 
-  constructor(token: string, user: User) {
+  constructor(token: string, user: User, code: string) {
     this.token = token;
     this.user = user;
     this.expiryDate = moment().add(1, 'day').toDate();
+    this.code = code;
   }
 }

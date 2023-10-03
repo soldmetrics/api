@@ -6,6 +6,12 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { PasswordResetToken, User } from '@app/common/database';
 
+export interface ResetPasswordResponse {
+  token: string;
+  success: boolean;
+  message: string;
+}
+
 export class ResetPasswordUseCase {
   constructor(
     @InjectRepository(User) private usersRepository: Repository<User>,
@@ -13,30 +19,35 @@ export class ResetPasswordUseCase {
     private passwordResetRepository: Repository<PasswordResetToken>,
   ) {}
 
-  async execute(email: string): Promise<string> {
+  async execute(email: string): Promise<ResetPasswordResponse> {
     try {
       const user = await this.getUserByEmail(email);
 
       if (user) {
         const token = uuid();
-        const resetToken = new PasswordResetToken(token, user);
+        const code = Math.random().toString().substring(2, 8);
+        const resetToken = new PasswordResetToken(token, user, code);
 
         this.passwordResetRepository.save(resetToken);
 
         const mailTransporter = this.setupMailTransporter();
 
         await mailTransporter.sendMail({
-          from: `"Estoque Total" <${process.env.NODEMAILER_USERNAME}>`,
+          from: `"Sold Metrics" <${process.env.NODEMAILER_USERNAME}>`,
           to: email,
-          subject: 'Troca de senha - Plataforma Sold Metrics',
+          subject: `Sold Metrics - Código para troca de senha: ${code}`,
           html: `
           <p>Olá ${user.name},</p>
-          <p>Você requisitou uma troca de senha. Clique no link abaixo para reseta-lá.</p>
-          <p>${process.env.CLIENT_URL}/trocar-minha-senha?token=${token}</p>
+          <p>Você requisitou uma troca de senha na plataforma Sold Metrics.</p>
+          <p>Digite o seguinte código em seu aplicativo para prosseguir: ${code}</p>
           `,
         });
 
-        return 'Email para troca de senha enviado!';
+        return {
+          token,
+          success: true,
+          message: 'Email para troca de senha enviado!',
+        };
       }
 
       throw new HttpException('', HttpStatus.NOT_FOUND);

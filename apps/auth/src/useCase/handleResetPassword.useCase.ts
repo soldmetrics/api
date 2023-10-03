@@ -6,6 +6,8 @@ import { Repository } from 'typeorm';
 import { HandleResetPasswordDTO } from '../model/dto/handleResetPasswordDTO';
 
 export class HandleResetPasswordUseCase {
+  private MAX_ATTEMPTS = 3;
+
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -16,18 +18,28 @@ export class HandleResetPasswordUseCase {
   async execute(
     handleResetPasswordDTO: HandleResetPasswordDTO,
   ): Promise<string> {
-    const { password, passwordConfirmation } = handleResetPasswordDTO;
+    const { password, passwordConfirmation, token, code } =
+      handleResetPasswordDTO;
+
     const resetToken: PasswordResetToken =
       await this.passwordResetRepository.findOne({
         where: {
-          token: handleResetPasswordDTO.token,
+          token: token,
         },
         relations: {
           user: true,
         },
       });
 
-    if (resetToken && moment(resetToken.expiryDate).isAfter(moment())) {
+    if (
+      resetToken &&
+      moment(resetToken.expiryDate).isAfter(moment()) &&
+      resetToken.attempts < this.MAX_ATTEMPTS
+    ) {
+      if (code != resetToken.code) {
+        await this.updateAttemptsAndThrowException(resetToken);
+      }
+
       if (password === passwordConfirmation) {
         this.updateUserPasswordAndDeleteToken(resetToken, password);
 
@@ -41,6 +53,21 @@ export class HandleResetPasswordUseCase {
     }
 
     throw new HttpException('Token inválido!', HttpStatus.BAD_REQUEST);
+  }
+
+  private async updateAttemptsAndThrowException(
+    resetToken: PasswordResetToken,
+  ): Promise<void> {
+    resetToken.attempts++;
+
+    await this.passwordResetRepository.update(resetToken.id, resetToken);
+
+    throw new HttpException(
+      `Código informado incompatível, ${
+        this.MAX_ATTEMPTS - resetToken.attempts
+      } tentativas restantes.`,
+      HttpStatus.BAD_REQUEST,
+    );
   }
 
   private updateUserPasswordAndDeleteToken(

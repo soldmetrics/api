@@ -5,6 +5,9 @@ export class HandleResetPasswordDTO {
   token: string;
 
   @IsNotEmpty()
+  code: string;
+
+  @IsNotEmpty()
   password: string;
 
   @IsNotEmpty()
