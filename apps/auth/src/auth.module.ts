@@ -25,6 +25,10 @@ import {
   RegisterUseCase,
   ResetPasswordUseCase,
 } from './useCase';
+import { Sale } from '@app/common/database/model/entity/sale.entity';
+import { Product } from '@app/common/database/model/entity/product.entity';
+import { ProductSale } from '@app/common/database/model/entity/productSale.entity';
+import { ProductCostChange } from '@app/common/database/model/entity/productCostChange.entity';
 
 @Module({
   imports: [
@@ -45,6 +49,10 @@ import {
       Plan,
       Subscription,
       PlanFeature,
+      Sale,
+      Product,
+      ProductSale,
+      ProductCostChange,
     ]),
   ],
   controllers: [AuthController],

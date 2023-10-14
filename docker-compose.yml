@@ -69,6 +69,25 @@ services:
       - /usr/src/app/node_modules
     ports:
       - '3000:3000'
+  sales-import:
+    build:
+      context: .
+      dockerfile: ./apps/sales-import/Dockerfile
+      target: development
+    command: npm run start:dev sales-import
+    networks:
+      - app-tier
+    env_file:
+      - ./apps/sales-import/.env.dev
+    depends_on:
+      - database
+      - auth
+      # - rabbitmq
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - '3002:3002'
 
 volumes:
   database:

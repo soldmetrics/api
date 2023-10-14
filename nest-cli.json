@@ -36,6 +36,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
+    },
+    "sales-import": {
+      "type": "application",
+      "root": "apps/sales-import",
+      "entryFile": "main",
+      "sourceRoot": "apps/sales-import/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/sales-import/tsconfig.app.json"
+      }
     }
   }
 }

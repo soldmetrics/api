@@ -16,7 +16,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return url !== 'auth/validateToken' &&
       (previousPath.startsWith('auth') ||
         previousPath.startsWith('health') ||
-        location.includes('tiny/receive-sale'))
+        url.includes('sales/receive-sale'))
       ? true
       : super.canActivate(context);
   }
