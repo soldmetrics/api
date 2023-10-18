@@ -88,7 +88,11 @@ export class BlingRepository implements ExternalRepository {
       },
     });
 
-    if (data.retorno && data.retorno?.pedidos.length > 0) {
+    if (
+      data.retorno &&
+      data.retorno?.pedidos &&
+      data.retorno?.pedidos.length > 0
+    ) {
       for (const { pedido: sale } of data.retorno?.pedidos) {
         const itens = sale.itens || [];
 
@@ -108,6 +112,8 @@ export class BlingRepository implements ExternalRepository {
                 codigo: saleProduct.codigo,
                 descricao: saleProduct.descricao,
                 quantidade: saleProduct.quantidade,
+                valorunidade: saleProduct.valorunidade,
+                precocusto: saleProduct.precocusto,
               } as ImportedProductDTO;
             }),
           };
@@ -128,6 +134,7 @@ export class BlingRepository implements ExternalRepository {
     page: number,
     startDate: string,
     endDate: string,
+    createdSaleNumbers?: string[],
   ): Promise<{ result: ImportedInvoiceDTO[]; errorQtd: number }> {
     let errorQtd = 0;
     const result: ImportedInvoiceDTO[] = [];
@@ -154,15 +161,20 @@ export class BlingRepository implements ExternalRepository {
             xml: invoice.xml,
           };
 
-          importedInvoice.itens = await this.getInvoiceItens(
-            importedInvoice.xml,
-          );
+          if (
+            !createdSaleNumbers ||
+            !createdSaleNumbers.includes(importedInvoice.numero)
+          ) {
+            importedInvoice.itens = await this.getInvoiceItens(
+              importedInvoice.xml,
+            );
 
-          console.log(
-            `fetched ${importedInvoice.itens.length} invoice itens for invoice ${importedInvoice.numero}`,
-          );
+            console.log(
+              `fetched ${importedInvoice.itens.length} invoice itens for invoice ${importedInvoice.numero}`,
+            );
 
-          result.push(importedInvoice);
+            result.push(importedInvoice);
+          }
         } catch (error) {
           errorQtd++;
           console.error(

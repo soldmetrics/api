@@ -27,6 +27,7 @@ export interface ExternalRepository {
     page: number,
     startDate: string,
     endDate: string,
+    createdSaleNumbers?: string[],
   ): Promise<{ result: ImportedInvoiceDTO[]; errorQtd: number }>;
 
   getSaleInformation(id: string): Promise<any>;

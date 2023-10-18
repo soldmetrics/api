@@ -1,7 +1,9 @@
 export interface ImportedProductDTO {
   codigo: string;
   descricao: string;
-  quantidade: number;
+  quantidade: string;
+  valorunidade?: number;
+  precocusto?: number;
 }
 
 export interface ImportedSaleDTO {

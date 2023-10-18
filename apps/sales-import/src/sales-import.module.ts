@@ -19,6 +19,12 @@ import { ProductCostChange } from '@app/common/database/model/entity/productCost
 import { ReceiveSalesUseCase } from './useCase/receiveSale.useCase';
 import { ConfigModule } from '@nestjs/config';
 import { HttpModule } from '@nestjs/axios';
+import { ScheduleModule } from '@nestjs/schedule';
+import { CleanSalesProcessor } from './batch/processors/cleanSalesProcessor';
+import { ImportBlingSalesProcessor } from './batch/processors/importBlingSalesProcessor';
+import { BlingJob } from './batch/blingJob';
+import { JobExecution } from '@app/common/database/model/entity/jobExecution.entity';
+import { ImportBlingInvoicesProcessor } from './batch/processors/importInvoicesProcessor';
 
 @Module({
   imports: [
@@ -39,12 +45,19 @@ import { HttpModule } from '@nestjs/axios';
       Product,
       ProductSale,
       ProductCostChange,
+      JobExecution,
     ]),
     HttpModule,
-    // BatchModule,
-    // ScheduleModule.``forRoot(),
+    ScheduleModule.forRoot(),
   ],
   controllers: [SalesImportController],
-  providers: [SalesImportService, ReceiveSalesUseCase],
+  providers: [
+    BlingJob,
+    SalesImportService,
+    ReceiveSalesUseCase,
+    CleanSalesProcessor,
+    ImportBlingSalesProcessor,
+    ImportBlingInvoicesProcessor,
+  ],
 })
 export class SalesImportModule {}
