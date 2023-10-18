@@ -6,6 +6,24 @@ import { JwtStrategy } from 'apps/auth/src/strategy/jwt.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from 'apps/auth/src/guard/auth.guard';
 import { RolesGuard } from 'apps/auth/src/guard/roles.guard';
+import { GetUserAndCompanyUseCase } from '@app/common/utils/getUserCompany.useCase';
+import { GetSalesUseCase } from './useCase/getSales.useCase';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import {
+  Company,
+  DatabaseModule,
+  PasswordResetToken,
+  Plan,
+  PlanFeature,
+  Role,
+  User,
+} from '@app/common/database';
+import { Subscription } from 'rxjs';
+import { Sale } from '@app/common/database/model/entity/sale.entity';
+import { Product } from '@app/common/database/model/entity/product.entity';
+import { ProductSale } from '@app/common/database/model/entity/productSale.entity';
+import { ProductCostChange } from '@app/common/database/model/entity/productCostChange.entity';
+import { JobExecution } from '@app/common/database/model/entity/jobExecution.entity';
 
 @Module({
   imports: [
@@ -13,6 +31,21 @@ import { RolesGuard } from 'apps/auth/src/guard/roles.guard';
       isGlobal: true,
       envFilePath: './apps/sales/.env.dev',
     }),
+    DatabaseModule,
+    TypeOrmModule.forFeature([
+      User,
+      Role,
+      Company,
+      PasswordResetToken,
+      Plan,
+      Subscription,
+      PlanFeature,
+      Sale,
+      Product,
+      ProductSale,
+      ProductCostChange,
+      JobExecution,
+    ]),
   ],
   controllers: [SalesController],
   providers: [
@@ -20,6 +53,8 @@ import { RolesGuard } from 'apps/auth/src/guard/roles.guard';
     JwtStrategy,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
+    GetUserAndCompanyUseCase,
+    GetSalesUseCase,
   ],
 })
 export class SalesModule {}
