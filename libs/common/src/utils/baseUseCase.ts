@@ -23,7 +23,7 @@ export class BaseUseCase {
       if (type == RollbackTypeEnum.CREATE && object.id) {
         console.log(`Deleting object with id ${object.id}`);
         await repository.delete(object.id);
-        return;
+        continue;
       }
 
       console.log(`Updating to previous state object with id ${object.id}`);

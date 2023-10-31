@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   ForbiddenException,
   Get,
@@ -31,6 +32,9 @@ export class SalesController {
     @Query('size') size?: number,
     @Query('page') page?: number,
   ) {
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      throw new BadRequestException('Invalid startDate or endDate!');
+    }
     const user = await this.getUserCompanyUseCase.execute(req.user.userId);
 
     const isAdmin = user.roles.map((e) => e.name).includes('ROLE_ADMIN');

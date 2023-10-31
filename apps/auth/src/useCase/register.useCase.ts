@@ -18,6 +18,13 @@ import { RegisterSubscriptionDto } from '../model/dto/register/registerSubscript
 import { SubscriptionDetailsDTO } from '../model/dto/subscriptionDetailsDTO';
 import * as moment from 'moment';
 import { BaseUseCase, RollbackTypeEnum } from '@app/common/utils/baseUseCase';
+import { JwtService } from '@nestjs/jwt';
+
+export interface RegisterResponseInterface {
+  user: UserDetailsDTO;
+  subscription: SubscriptionDetailsDTO;
+  accessToken: string;
+}
 
 Injectable();
 export class RegisterUseCase extends BaseUseCase {
@@ -28,13 +35,12 @@ export class RegisterUseCase extends BaseUseCase {
     @InjectRepository(Plan) private planRepository: Repository<Plan>,
     @InjectRepository(Subscription)
     private subscriptionRepository: Repository<Subscription>,
+    private jwtService: JwtService,
   ) {
     super();
   }
 
-  async execute(
-    data: RegisterDto,
-  ): Promise<{ user: UserDetailsDTO; subscription?: SubscriptionDetailsDTO }> {
+  async execute(data: RegisterDto): Promise<RegisterResponseInterface> {
     const {
       user: userData,
       company: companyData,
@@ -63,25 +69,27 @@ export class RegisterUseCase extends BaseUseCase {
         type: RollbackTypeEnum.CREATE,
       });
 
-      if (subscriptionData && user.company) {
-        subscription = await this.createSubscription(
-          user.company,
-          subscriptionData,
-        );
+      subscription = await this.createSubscription(
+        user.company,
+        subscriptionData,
+      );
 
-        this.rollbackStack.push({
-          object: subscription,
-          repository: this.subscriptionRepository,
-          type: RollbackTypeEnum.CREATE,
-        });
-      }
+      this.rollbackStack.push({
+        object: subscription,
+        repository: this.subscriptionRepository,
+        type: RollbackTypeEnum.CREATE,
+      });
+
+      const accessToken = this.jwtService.sign({
+        userId: user.id,
+        email: user.email,
+        roles: user.roles,
+      });
 
       return {
         user: new UserDetailsDTO(user),
-        subscription:
-          subscription && subscription.id
-            ? new SubscriptionDetailsDTO(subscription)
-            : undefined,
+        subscription: new SubscriptionDetailsDTO(subscription),
+        accessToken,
       };
     } catch (error) {
       console.error(error);
@@ -102,10 +110,9 @@ export class RegisterUseCase extends BaseUseCase {
   ): Promise<User> {
     const newCompany = new Company();
     const newUser = new User();
-
-    newCompany.name = companyData.name;
-
     newUser.name = `${userData.firstName.trim()} ${userData.lastName.trim()}`;
+    newCompany.name = companyData ? companyData.name : newUser.name;
+
     newUser.email = userData.email;
     newUser.password = userData.password;
     newUser.company = newCompany;
@@ -121,23 +128,31 @@ export class RegisterUseCase extends BaseUseCase {
     company: Company,
     subscriptionData: RegisterSubscriptionDto,
   ): Promise<Subscription> {
-    const plan = await this.planRepository.findOneBy({
-      id: subscriptionData.planId,
-    });
+    let plan;
 
-    if (!plan) {
-      throw new HttpException(
-        'Could not find provided plan',
-        HttpStatus.BAD_REQUEST,
-      );
+    if (subscriptionData) {
+      plan = await this.planRepository.findOneBy({
+        id: subscriptionData.planId,
+      });
+
+      if (!plan) {
+        throw new HttpException(
+          'Could not find provided plan',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    } else {
+      plan = await this.planRepository.findOneBy({
+        name: 'Sold Metrics - Teste Grátis',
+      });
     }
 
     const newSubscription = new Subscription();
     newSubscription.company = company;
     newSubscription.plan = plan;
-    newSubscription.startDate = moment(subscriptionData.startDate)
-      .add(3, 'hours')
-      .toDate();
+    newSubscription.startDate = subscriptionData
+      ? moment(subscriptionData.startDate).add(3, 'hours').toDate()
+      : moment().toDate();
     newSubscription.status = SubscriptionStatusEnum.ACTIVE;
 
     return this.subscriptionRepository.save(newSubscription);

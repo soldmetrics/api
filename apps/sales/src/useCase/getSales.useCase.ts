@@ -52,8 +52,11 @@ export class GetSalesUseCase {
       company: {
         id: payload.companyId,
       },
-      date: Between(payload.startDate, payload.endDate),
     };
+
+    if (payload.startDate && payload.endDate) {
+      whereObject.date = Between(payload.startDate, payload.endDate);
+    }
 
     if (payload.marketplace) {
       whereObject.marketplace = Raw(
