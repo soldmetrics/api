@@ -9,7 +9,9 @@ import {
 } from '@nestjs/common';
 import { ReceiveSaleTinyDTO } from './model/dto/ReceiveSaleDTO';
 import { ReceiveSalesUseCase } from './useCase/receiveSale.useCase';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Sales Import')
 @Controller()
 export class SalesImportController {
   constructor(private readonly receiveSaleUseCase: ReceiveSalesUseCase) {}

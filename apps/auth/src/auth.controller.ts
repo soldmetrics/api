@@ -9,7 +9,9 @@ import {
 } from './useCase';
 import { HandleResetPasswordDTO } from './model/dto/handleResetPasswordDTO';
 import { RegisterDto } from './model/dto/register/registerDTO';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller()
 export class AuthController {
   constructor(
