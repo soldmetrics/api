@@ -12,8 +12,13 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     const previousPath =
       request && request.headers ? request.headers['x-custom-path'] : '';
     const url = `${previousPath}${location}`;
+    const authenticatedUrls = [
+      'auth/validateToken',
+      'auth/me',
+      'auth/set-integration',
+    ];
 
-    return url !== 'auth/validateToken' &&
+    return !authenticatedUrls.includes(url) &&
       (previousPath.startsWith('auth') ||
         previousPath.startsWith('health') ||
         url.includes('sales/receive-sale'))

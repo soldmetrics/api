@@ -1,4 +1,15 @@
-import { Body, Controller, Get, HttpCode, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Post,
+  Query,
+  Req,
+  Request,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { CredentialsDTO } from './model/dto/credentialsDTO';
 import {
   CanResetPasswordUseCase,
@@ -9,6 +20,9 @@ import {
 } from './useCase';
 import { HandleResetPasswordDTO } from './model/dto/handleResetPasswordDTO';
 import { RegisterDto } from './model/dto/register/registerDTO';
+import { GetUserAndCompanyUseCase } from '@app/common/utils/getUserCompany.useCase';
+import { SetIntegrationDTO } from './model/dto/setIntegrationDTO';
+import { SetIntegrationUseCase } from './useCase/setIntegration.useCase';
 
 @Controller()
 export class AuthController {
@@ -18,7 +32,15 @@ export class AuthController {
     private resetPasswordUseCase: ResetPasswordUseCase,
     private canResetPasswordUseCase: CanResetPasswordUseCase,
     private handleResetPasswordUseCase: HandleResetPasswordUseCase,
+    private getUserAndCompanyUseCase: GetUserAndCompanyUseCase,
+    private setIntegrationUseCase: SetIntegrationUseCase,
   ) {}
+
+  @Get('/me')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async me(@Request() req) {
+    return await this.getUserAndCompanyUseCase.execute(req.user.userId);
+  }
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
@@ -39,8 +61,11 @@ export class AuthController {
 
   @Get('/reset-password/enabled')
   @HttpCode(200)
-  async canResetPassword(@Query('token') token: string) {
-    return await this.canResetPasswordUseCase.execute(token);
+  async canResetPassword(
+    @Query('token') token: string,
+    @Query('code') code: string,
+  ) {
+    return await this.canResetPasswordUseCase.execute(token, code);
   }
 
   @Post('/reset-password/handle')
@@ -54,5 +79,20 @@ export class AuthController {
   async validateToken() {
     // If the request reached here, the token will be always valid
     return 'Valid token!';
+  }
+
+  @Post('/set-integration')
+  @HttpCode(200)
+  async setIntegration(
+    @Req() req,
+    @Body() setIntegrationDTO: SetIntegrationDTO,
+  ) {
+    const user = await this.getUserAndCompanyUseCase.execute(req.user.userId);
+
+    return this.setIntegrationUseCase.execute(
+      setIntegrationDTO,
+      user.company,
+      req.headers.authorization,
+    );
   }
 }

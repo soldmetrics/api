@@ -25,6 +25,9 @@ import { ImportBlingSalesProcessor } from './batch/processors/importBlingSalesPr
 import { BlingJob } from './batch/blingJob';
 import { JobExecution } from '@app/common/database/model/entity/jobExecution.entity';
 import { ImportBlingInvoicesProcessor } from './batch/processors/importInvoicesProcessor';
+import { RmqModule } from '@app/common/rabbitmq/rabbitmq.module';
+import { JwtStrategy } from 'apps/auth/src/strategy/jwt.strategy';
+import { ImportLastMonthUseCase } from './useCase/importLastMonth.useCase';
 
 @Module({
   imports: [
@@ -49,6 +52,7 @@ import { ImportBlingInvoicesProcessor } from './batch/processors/importInvoicesP
     ]),
     HttpModule,
     ScheduleModule.forRoot(),
+    RmqModule,
   ],
   controllers: [SalesImportController],
   providers: [
@@ -58,6 +62,8 @@ import { ImportBlingInvoicesProcessor } from './batch/processors/importInvoicesP
     CleanSalesProcessor,
     ImportBlingSalesProcessor,
     ImportBlingInvoicesProcessor,
+    ImportLastMonthUseCase,
+    JwtStrategy,
   ],
 })
 export class SalesImportModule {}

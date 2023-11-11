@@ -40,7 +40,7 @@ export class Sale {
   })
   products: ProductSale[];
 
-  @ManyToOne(() => Company, (company) => company.sales)
+  @ManyToOne(() => Company, (company) => company.sales, { cascade: [] })
   company: Company;
 
   constructor(

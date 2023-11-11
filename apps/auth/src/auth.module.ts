@@ -29,6 +29,11 @@ import { Sale } from '@app/common/database/model/entity/sale.entity';
 import { Product } from '@app/common/database/model/entity/product.entity';
 import { ProductSale } from '@app/common/database/model/entity/productSale.entity';
 import { ProductCostChange } from '@app/common/database/model/entity/productCostChange.entity';
+import { GetUserAndCompanyUseCase } from '@app/common/utils/getUserCompany.useCase';
+import { SetIntegrationUseCase } from './useCase/setIntegration.useCase';
+import { HttpModule } from '@nestjs/axios';
+import { RmqModule } from '@app/common/rabbitmq/rabbitmq.module';
+import { SALES_IMPORT_SERVICE } from '@app/common/config/constants';
 
 @Module({
   imports: [
@@ -54,6 +59,10 @@ import { ProductCostChange } from '@app/common/database/model/entity/productCost
       ProductSale,
       ProductCostChange,
     ]),
+    HttpModule,
+    RmqModule.register({
+      name: SALES_IMPORT_SERVICE,
+    }),
   ],
   controllers: [AuthController],
   providers: [
@@ -63,7 +72,9 @@ import { ProductCostChange } from '@app/common/database/model/entity/productCost
     ResetPasswordUseCase,
     CanResetPasswordUseCase,
     HandleResetPasswordUseCase,
+    GetUserAndCompanyUseCase,
     JwtStrategy,
+    SetIntegrationUseCase,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
   ],
