@@ -11,7 +11,9 @@ import {
 import { Roles } from '@app/common/config/roles.decorator';
 import { GetUserAndCompanyUseCase } from '@app/common/utils/getUserCompany.useCase';
 import { GetSalesUseCase } from './useCase/getSales.useCase';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Sales')
 @Controller()
 export class SalesController {
   constructor(

@@ -20,10 +20,12 @@ import {
 } from './useCase';
 import { HandleResetPasswordDTO } from './model/dto/handleResetPasswordDTO';
 import { RegisterDto } from './model/dto/register/registerDTO';
+import { ApiTags } from '@nestjs/swagger';
 import { GetUserAndCompanyUseCase } from '@app/common/utils/getUserCompany.useCase';
 import { SetIntegrationDTO } from './model/dto/setIntegrationDTO';
 import { SetIntegrationUseCase } from './useCase/setIntegration.useCase';
 
+@ApiTags('Auth')
 @Controller()
 export class AuthController {
   constructor(

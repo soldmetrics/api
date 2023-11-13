@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNotEmptyObject } from 'class-validator';
 
 export interface ReceiveSaleDataTiny {
@@ -10,15 +11,20 @@ export interface ReceiveSaleDataTiny {
 }
 
 export class ReceiveSaleTinyDTO {
+  @ApiProperty()
   @IsNotEmpty()
   cnpj: string;
 
+  @ApiProperty()
   idEcommerce: string;
 
+  @ApiProperty()
   tipo: string;
 
+  @ApiProperty()
   versao: string;
 
+  @ApiProperty()
   @IsNotEmptyObject()
   dados: ReceiveSaleDataTiny;
 }
