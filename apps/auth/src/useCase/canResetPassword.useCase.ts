@@ -9,12 +9,15 @@ export class CanResetPasswordUseCase {
     private passwordResetRepository: Repository<PasswordResetToken>,
   ) {}
 
-  async execute(token: string): Promise<boolean> {
+  async execute(token: string, code: string): Promise<boolean> {
     const resetToken: PasswordResetToken =
       await this.passwordResetRepository.findOneBy({ token });
 
     if (resetToken) {
-      return moment(resetToken.expiryDate).isAfter(moment());
+      return (
+        moment(resetToken.expiryDate).isAfter(moment()) &&
+        resetToken.code === code
+      );
     }
 
     return false;

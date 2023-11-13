@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { ForbiddenException, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../database';
@@ -15,14 +15,15 @@ export class GetUserAndCompanyUseCase {
         relations: { company: true, roles: true },
       });
 
+      if (!user) {
+        throw new ForbiddenException();
+      }
+
       return user;
     } catch (error) {
       console.error(error);
 
-      throw new HttpException(
-        'Error fetching user company',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
   }
 }

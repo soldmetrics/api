@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { SalesImportModule } from './sales-import.module';
 import { ConfigService } from '@nestjs/config';
+import { RmqService } from '@app/common/rabbitmq/rabbitmq.service';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
@@ -16,7 +17,10 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
+  const rmqService = app.get<RmqService>(RmqService);
+  app.connectMicroservice(rmqService.getOptions('BILLING'));
 
   await app.listen(configService.get('PORT'));
+  await app.startAllMicroservices();
 }
 bootstrap();
