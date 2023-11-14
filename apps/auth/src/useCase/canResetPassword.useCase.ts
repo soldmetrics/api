@@ -10,6 +10,8 @@ export interface CanResetPasswordResponse {
 }
 
 export class CanResetPasswordUseCase {
+  private MAX_ATTEMPTS = 3;
+
   constructor(
     @InjectRepository(PasswordResetToken)
     private passwordResetRepository: Repository<PasswordResetToken>,
@@ -21,20 +23,36 @@ export class CanResetPasswordUseCase {
   ): Promise<CanResetPasswordResponse> {
     try {
       const resetToken: PasswordResetToken =
-        await this.passwordResetRepository.findOneBy({ token });
+        await this.passwordResetRepository.findOne({
+          where: {
+            token: token,
+          },
+          relations: {
+            user: true,
+          },
+        });
 
       if (
         resetToken &&
         moment(resetToken.expiryDate).isAfter(moment()) &&
-        resetToken.code === code
+        resetToken.attempts < this.MAX_ATTEMPTS
       ) {
-        return {
-          success: true,
-          message: 'Código válidado com sucesso',
-        };
-      }
+        if (code != resetToken.code) {
+          await this.updateAttemptsAndThrowException(resetToken);
 
-      throw new HttpException('', HttpStatus.NOT_FOUND);
+          throw new HttpException(
+            'Código não é o mesmo',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+
+        if (code === resetToken.code) {
+          return {
+            success: true,
+            message: 'Código válidado com sucesso',
+          };
+        }
+      }
     } catch (error) {
       console.log(`error for resetting password: ${error}`);
       if (error instanceof HttpException) {
@@ -46,5 +64,20 @@ export class CanResetPasswordUseCase {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  private async updateAttemptsAndThrowException(
+    resetToken: PasswordResetToken,
+  ): Promise<void> {
+    resetToken.attempts++;
+
+    await this.passwordResetRepository.update(resetToken.id, resetToken);
+
+    throw new HttpException(
+      `Código informado incompatível, ${
+        this.MAX_ATTEMPTS - resetToken.attempts
+      } tentativas restantes.`,
+      HttpStatus.BAD_REQUEST,
+    );
   }
 }
