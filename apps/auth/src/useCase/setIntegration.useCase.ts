@@ -10,6 +10,12 @@ import { ClientProxy } from '@nestjs/microservices';
 import { SALES_IMPORT_SERVICE } from '@app/common/config/constants';
 import { lastValueFrom } from 'rxjs';
 
+interface SetIntegrationResponse {
+  success: boolean;
+  message: string;
+  callbackUrl?: string;
+}
+
 Injectable();
 export class SetIntegrationUseCase extends BaseUseCase {
   constructor(
@@ -24,7 +30,7 @@ export class SetIntegrationUseCase extends BaseUseCase {
     payload: SetIntegrationDTO,
     company: Company,
     authToken: string,
-  ): Promise<boolean> {
+  ): Promise<SetIntegrationResponse> {
     try {
       const { integration, token } = payload;
 
@@ -57,7 +63,17 @@ export class SetIntegrationUseCase extends BaseUseCase {
         }),
       );
 
-      return true;
+      const response: SetIntegrationResponse = {
+        success: true,
+        message:
+          'Chave de integração salva com sucesso. Aguarde a importação de vendas',
+      };
+
+      if (integration === Integration.TINY) {
+        response.callbackUrl = `${process.env.APP_URL}/sales-import/tiny/receive-sale/${company.id}`;
+      }
+
+      return response;
     } catch (error) {
       await this.rollback();
 

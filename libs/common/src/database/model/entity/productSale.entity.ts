@@ -17,7 +17,10 @@ export class ProductSale {
   @ManyToOne(() => Product, (product) => product.sales, { cascade: ['insert'] })
   public product: Product;
 
-  @ManyToOne(() => Sale, (sale) => sale.products)
+  @ManyToOne(() => Sale, (sale) => sale.products, {
+    onDelete: 'CASCADE',
+    orphanedRowAction: 'delete',
+  })
   public sale: Sale;
 
   @Column({ type: 'int' })

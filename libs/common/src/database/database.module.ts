@@ -27,7 +27,7 @@ const sslDefaultConfig = {
       // synchronize: process.env.NODE_ENV === 'dev',
       autoLoadEntities: true,
       keepConnectionAlive: true,
-      ssl: process.env.NODE_ENV === 'prod' ? sslDefaultConfig : false,
+      ssl: process.env.NODE_ENV === 'test' ? sslDefaultConfig : false,
     }),
     TypeOrmModule.forFeature([
       User,
