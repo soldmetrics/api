@@ -3,6 +3,7 @@ import {
   Controller,
   ForbiddenException,
   Get,
+  HttpCode,
   Query,
   Request,
   UsePipes,
@@ -12,6 +13,7 @@ import { Roles } from '@app/common/config/roles.decorator';
 import { GetUserAndCompanyUseCase } from '@app/common/utils/getUserCompany.useCase';
 import { GetSalesUseCase } from './useCase/getSales.useCase';
 import { ApiTags } from '@nestjs/swagger';
+import { MARKETPLACES } from '@app/common/config/constants';
 
 @ApiTags('Sales')
 @Controller()
@@ -24,7 +26,7 @@ export class SalesController {
   @Get()
   @Roles('ROLE_USER', 'ROLE_COMPANY_MANAGER')
   @UsePipes(new ValidationPipe({ transform: true }))
-  async receiveSale(
+  async getSales(
     @Request() req,
     @Query('startDate') startDate: Date,
     @Query('endDate') endDate: Date,
@@ -54,5 +56,12 @@ export class SalesController {
       size,
       sort,
     });
+  }
+
+  @Get('marketplaces')
+  @Roles('ROLE_USER', 'ROLE_COMPANY_MANAGER')
+  @HttpCode(200)
+  async getMarketplaces() {
+    return MARKETPLACES;
   }
 }
