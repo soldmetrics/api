@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   Company,
   DatabaseModule,
+  Device,
   PasswordResetToken,
   Plan,
   PlanFeature,
@@ -49,6 +50,7 @@ import { ImportLastMonthUseCase } from './useCase/importLastMonth.useCase';
       ProductSale,
       ProductCostChange,
       JobExecution,
+      Device,
     ]),
     HttpModule,
     ScheduleModule.forRoot(),

@@ -8,6 +8,7 @@ import {
   Plan,
   PlanFeature,
   Subscription,
+  Device,
 } from './model/entity';
 
 const sslDefaultConfig = {
@@ -37,6 +38,7 @@ const sslDefaultConfig = {
       PlanFeature,
       Plan,
       Subscription,
+      Device,
     ]),
   ],
 })

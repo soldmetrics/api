@@ -12,6 +12,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   Company,
   DatabaseModule,
+  Device,
   PasswordResetToken,
   Plan,
   PlanFeature,
@@ -45,6 +46,7 @@ import { JobExecution } from '@app/common/database/model/entity/jobExecution.ent
       ProductSale,
       ProductCostChange,
       JobExecution,
+      Device,
     ]),
   ],
   controllers: [SalesController],

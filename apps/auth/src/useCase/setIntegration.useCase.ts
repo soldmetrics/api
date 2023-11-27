@@ -10,7 +10,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { SALES_IMPORT_SERVICE } from '@app/common/config/constants';
 import { lastValueFrom } from 'rxjs';
 
-interface SetIntegrationResponse {
+export interface SetIntegrationResponse {
   success: boolean;
   message: string;
   callbackUrl?: string;

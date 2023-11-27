@@ -16,6 +16,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       'auth/validateToken',
       'auth/me',
       'auth/set-integration',
+      'auth/register-device',
     ];
 
     return !authenticatedUrls.includes(url) &&

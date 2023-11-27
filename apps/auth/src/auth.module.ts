@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import {
   Company,
   DatabaseModule,
+  Device,
   PasswordResetToken,
   Plan,
   PlanFeature,
@@ -34,6 +35,7 @@ import { SetIntegrationUseCase } from './useCase/setIntegration.useCase';
 import { HttpModule } from '@nestjs/axios';
 import { RmqModule } from '@app/common/rabbitmq/rabbitmq.module';
 import { SALES_IMPORT_SERVICE } from '@app/common/config/constants';
+import { RegisterDeviceUseCase } from './useCase/registerDevice.useCase';
 
 @Module({
   imports: [
@@ -58,6 +60,7 @@ import { SALES_IMPORT_SERVICE } from '@app/common/config/constants';
       Product,
       ProductSale,
       ProductCostChange,
+      Device,
     ]),
     HttpModule,
     RmqModule.register({
@@ -75,6 +78,7 @@ import { SALES_IMPORT_SERVICE } from '@app/common/config/constants';
     GetUserAndCompanyUseCase,
     JwtStrategy,
     SetIntegrationUseCase,
+    RegisterDeviceUseCase,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
   ],

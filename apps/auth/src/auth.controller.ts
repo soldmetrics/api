@@ -23,7 +23,14 @@ import { RegisterDto } from './model/dto/register/registerDTO';
 import { ApiTags } from '@nestjs/swagger';
 import { GetUserAndCompanyUseCase } from '@app/common/utils/getUserCompany.useCase';
 import { SetIntegrationDTO } from './model/dto/setIntegrationDTO';
-import { SetIntegrationUseCase } from './useCase/setIntegration.useCase';
+import {
+  SetIntegrationResponse,
+  SetIntegrationUseCase,
+} from './useCase/setIntegration.useCase';
+import {
+  RegisterDevicePayload,
+  RegisterDeviceUseCase,
+} from './useCase/registerDevice.useCase';
 
 @ApiTags('Auth')
 @Controller()
@@ -36,6 +43,7 @@ export class AuthController {
     private handleResetPasswordUseCase: HandleResetPasswordUseCase,
     private getUserAndCompanyUseCase: GetUserAndCompanyUseCase,
     private setIntegrationUseCase: SetIntegrationUseCase,
+    private registerDeviceUseCase: RegisterDeviceUseCase,
   ) {}
 
   @Get('/me')
@@ -88,13 +96,25 @@ export class AuthController {
   async setIntegration(
     @Req() req,
     @Body() setIntegrationDTO: SetIntegrationDTO,
-  ) {
+  ): Promise<SetIntegrationResponse> {
     const user = await this.getUserAndCompanyUseCase.execute(req.user.userId);
 
     return this.setIntegrationUseCase.execute(
       setIntegrationDTO,
       user.company,
       req.headers.authorization,
+    );
+  }
+
+  @Post('/register-device')
+  @HttpCode(200)
+  async registerDevice(
+    @Req() req,
+    @Body() registerDeviceDTO: RegisterDevicePayload,
+  ) {
+    return this.registerDeviceUseCase.execute(
+      registerDeviceDTO,
+      req.user.userId,
     );
   }
 }

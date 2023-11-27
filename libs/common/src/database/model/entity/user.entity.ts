@@ -9,10 +9,12 @@ import {
   Unique,
   ManyToMany,
   JoinTable,
+  OneToMany,
 } from 'typeorm';
 import { Company } from './company.entity';
 import { Role } from './role.entity';
 import * as bcrypt from 'bcryptjs';
+import { Device } from './devices.entity';
 
 @Entity({ name: 'users' })
 @Unique(['email'])
@@ -53,6 +55,9 @@ export class User {
   @ManyToMany(() => Role, { eager: true })
   @JoinTable()
   roles: Role[];
+
+  @OneToMany(() => Device, (device) => device.user)
+  devices: Device[];
 
   hashPassword() {
     this.password = bcrypt.hashSync(this.password, 8);

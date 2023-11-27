@@ -5,3 +5,4 @@ export * from './planFeature.entity';
 export * from './role.entity';
 export * from './subscription.entity';
 export * from './user.entity';
+export * from './devices.entity';
