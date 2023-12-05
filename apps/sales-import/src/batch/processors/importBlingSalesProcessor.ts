@@ -1,3 +1,4 @@
+import { AUTH_SERVICE } from '@app/common/config/constants';
 import { Company, Integration } from '@app/common/database';
 import { ImportedSaleDTO } from '@app/common/database/model/dto/importedSaleDTO.interface';
 import {
@@ -8,9 +9,11 @@ import { Product } from '@app/common/database/model/entity/product.entity';
 import { ProductSale } from '@app/common/database/model/entity/productSale.entity';
 import { Sale, SaleType } from '@app/common/database/model/entity/sale.entity';
 import { HttpService } from '@nestjs/axios';
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
+import { lastValueFrom } from 'rxjs';
 import { Between, In, Not, Repository } from 'typeorm';
 
 Injectable();
@@ -26,6 +29,7 @@ export class ImportBlingSalesProcessor {
     @InjectRepository(Product) private productRepository: Repository<Product>,
     @InjectRepository(JobExecution)
     private jobExecutionRepository: Repository<JobExecution>,
+    @Inject(AUTH_SERVICE) private authClient: ClientProxy,
   ) {}
 
   async execute() {
@@ -34,60 +38,70 @@ export class ImportBlingSalesProcessor {
     const companies = await this.fetchAllCompanies();
 
     for (const company of companies) {
-      this.logger.log(`Starting sales import for company ${company.name}`);
-      const { importedSales, page } = await this.importSales(company);
+      try {
+        this.logger.log(`Starting sales import for company ${company.name}`);
+        const { importedSales, page } = await this.importSales(company);
+        const sales: Sale[] = [];
 
-      this.logger.log(`Found ${importedSales.length} sales for company`);
+        this.logger.log(`Found ${importedSales.length} sales for company`);
 
-      for (const importedSale of importedSales) {
-        try {
-          const existingProducts = await this.productRepository.findBy({
-            company: {
-              id: company.id,
-            },
-            code: In(importedSale.itens.map((e) => e.codigo)),
-          });
+        for (const importedSale of importedSales) {
+          try {
+            const existingProducts = await this.productRepository.findBy({
+              company: {
+                id: company.id,
+              },
+              code: In(importedSale.itens.map((e) => e.codigo)),
+            });
 
-          let sale = new Sale(
-            importedSale.numero,
-            importedSale.data,
-            importedSale.cliente.nome,
-            SaleType.PEDIDO,
-            company,
-            importedSale.marketplace,
-          );
+            let sale = new Sale(
+              importedSale.numero,
+              importedSale.data,
+              importedSale.cliente.nome,
+              SaleType.PEDIDO,
+              company,
+              importedSale.marketplace,
+            );
 
-          sale = await this.saleRepository.save(sale);
+            sale = await this.saleRepository.save(sale);
+            sales.push(sale);
 
-          const productSales = importedSale.itens.map((item) => {
-            let product = existingProducts.find((e) => e.code == item.codigo);
+            const productSales = importedSale.itens.map((item) => {
+              let product = existingProducts.find((e) => e.code == item.codigo);
 
-            if (!product) {
-              product = new Product(
-                item.codigo,
-                item.descricao,
-                item.valorunidade || 0,
-                item.precocusto || 0,
-                0,
-                false,
-                '',
-                company,
-                '',
-              );
-            }
+              if (!product) {
+                product = new Product(
+                  item.codigo,
+                  item.descricao,
+                  item.valorunidade || 0,
+                  item.precocusto || 0,
+                  0,
+                  false,
+                  '',
+                  company,
+                  '',
+                );
+              }
 
-            return new ProductSale(product, sale, parseInt(item.quantidade));
-          });
+              return new ProductSale(product, sale, parseInt(item.quantidade));
+            });
 
-          await this.productSaleRepository.save(productSales);
-        } catch (error) {
-          this.logger.error(
-            `Error when trying to import sale number ${importedSale.numero}:, \n ${error}`,
-          );
+            await this.productSaleRepository.save(productSales);
+          } catch (error) {
+            this.logger.error(
+              `Error when trying to import sale number ${importedSale.numero}:, \n ${error}`,
+            );
+          }
         }
-      }
 
-      await this.updateLastJobExecution(page, company);
+        await this.updateLastJobExecution(page, company);
+        await this.enqueueNotifications(company, sales);
+      } catch (error) {
+        this.logger.error(
+          `Error when trying to import sales for company ${company.name}`,
+        );
+        this.logger.error(error);
+      }
     }
 
     this.logger.log('Importation finished!');
@@ -173,6 +187,26 @@ export class ImportBlingSalesProcessor {
         `Error when trying to update job execution: \n ${error}`,
       );
     }
+  }
+
+  private async enqueueNotifications(
+    company: Company,
+    sales: Sale[],
+  ): Promise<void> {
+    if (sales.length == 0) {
+      return;
+    }
+
+    this.logger.log(
+      `Enqueing ${sales.length} notifications for company ${company.name}`,
+    );
+
+    await lastValueFrom(
+      this.authClient.emit('imported_sales', {
+        company,
+        sales,
+      }),
+    );
   }
 
   private async fetchAllCompanies(): Promise<Company[]> {

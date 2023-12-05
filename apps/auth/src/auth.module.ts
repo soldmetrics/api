@@ -36,6 +36,7 @@ import { HttpModule } from '@nestjs/axios';
 import { RmqModule } from '@app/common/rabbitmq/rabbitmq.module';
 import { SALES_IMPORT_SERVICE } from '@app/common/config/constants';
 import { RegisterDeviceUseCase } from './useCase/registerDevice.useCase';
+import { SendSalesPushNotificationUseCase } from './useCase/sendSalesPushNotification.useCase';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { RegisterDeviceUseCase } from './useCase/registerDevice.useCase';
       Device,
     ]),
     HttpModule,
+    RmqModule,
     RmqModule.register({
       name: SALES_IMPORT_SERVICE,
     }),
@@ -81,6 +83,7 @@ import { RegisterDeviceUseCase } from './useCase/registerDevice.useCase';
     RegisterDeviceUseCase,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
+    SendSalesPushNotificationUseCase,
   ],
 })
 export class AuthModule {}

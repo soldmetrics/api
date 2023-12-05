@@ -24,7 +24,7 @@ export class BlingJob {
 
         await this.cleanSalesProcessor.execute();
         await this.importSalesProcessor.execute();
-        await this.importInvoicesProcessor.execute();
+        // await this.importInvoicesProcessor.execute();
       } else {
         this.logger.log('crontab already running, skiping job');
       }

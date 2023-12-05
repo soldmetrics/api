@@ -6,6 +6,7 @@ import { AuthModule } from './auth.module';
 import { config } from 'dotenv';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { RmqService } from '@app/common/rabbitmq/rabbitmq.service';
 config({ path: `../.env.dev` });
 
 async function bootstrap() {
@@ -25,8 +26,11 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  await app.startAllMicroservices();
+  const rmqService = app.get<RmqService>(RmqService);
+  app.connectMicroservice(rmqService.getOptions('AUTH'));
+
   await app.listen(process.env.PORT);
+  await app.startAllMicroservices();
 
   if (module.hot) {
     module.hot.accept();
