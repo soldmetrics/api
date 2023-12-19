@@ -29,6 +29,7 @@ import { ImportBlingInvoicesProcessor } from './batch/processors/importInvoicesP
 import { RmqModule } from '@app/common/rabbitmq/rabbitmq.module';
 import { JwtStrategy } from 'apps/auth/src/strategy/jwt.strategy';
 import { ImportLastMonthUseCase } from './useCase/importLastMonth.useCase';
+import { AUTH_SERVICE } from '@app/common/config/constants';
 
 @Module({
   imports: [
@@ -55,6 +56,9 @@ import { ImportLastMonthUseCase } from './useCase/importLastMonth.useCase';
     HttpModule,
     ScheduleModule.forRoot(),
     RmqModule,
+    RmqModule.register({
+      name: AUTH_SERVICE,
+    }),
   ],
   controllers: [SalesImportController],
   providers: [
