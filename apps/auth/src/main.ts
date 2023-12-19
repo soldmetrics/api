@@ -7,9 +7,10 @@ import { config } from 'dotenv';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { RmqService } from '@app/common/rabbitmq/rabbitmq.service';
-config({ path: `../.env.dev` });
+config({ path: `../.env.${process.env.NODE_ENV || 'dev'}` });
 
 async function bootstrap() {
+  console.log(process.env.NODE_ENV);
   const app = await NestFactory.create(AuthModule);
   // const configService = app.get(ConfigService);
 

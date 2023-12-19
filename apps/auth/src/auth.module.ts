@@ -42,7 +42,7 @@ import { SendSalesPushNotificationUseCase } from './useCase/sendSalesPushNotific
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: './apps/auth/.env.dev',
+      envFilePath: `./apps/auth/.env`,
     }),
     DatabaseModule,
     JwtModule.register({
