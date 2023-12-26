@@ -2,9 +2,12 @@
 import {
   Body,
   Controller,
+  Get,
   HttpStatus,
   Param,
   Post,
+  Query,
+  Request,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -13,6 +16,10 @@ import { ReceiveSalesUseCase } from './useCase/receiveSale.useCase';
 import { ApiTags } from '@nestjs/swagger';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import { ImportLastMonthUseCase } from './useCase/importLastMonth.useCase';
+import { Roles } from '@app/common/config/roles.decorator';
+import { GetUserAndCompanyUseCase } from '@app/common/utils/getUserCompany.useCase';
+import { GenerateMercadolivreAuthUrlUseCase } from './useCase/generateMercadolivreAuthURL.useCase';
+import { SetMercadolivreIntegrationUseCase } from './useCase/setMercadolivreIntegration.useCase';
 
 @ApiTags('Sales Import')
 @Controller()
@@ -20,6 +27,9 @@ export class SalesImportController {
   constructor(
     private readonly receiveSaleUseCase: ReceiveSalesUseCase,
     private importLastMonthUseCase: ImportLastMonthUseCase,
+    private getUserCompanyUseCase: GetUserAndCompanyUseCase,
+    private generateMercadolivreAuthURL: GenerateMercadolivreAuthUrlUseCase,
+    private setMercadolivreIntegrationUseCase: SetMercadolivreIntegrationUseCase,
   ) {}
 
   @Post('tiny/receive-sale/:companyId')
@@ -31,9 +41,28 @@ export class SalesImportController {
     console.log('receive sales input:');
     console.log(JSON.stringify(receiveSaleDTO));
 
-    await this.receiveSaleUseCase.execute(receiveSaleDTO.dados, companyId);
+    // await this.receiveSaleUseCase.execute(receiveSaleDTO.dados, companyId);
 
     return HttpStatus.OK;
+  }
+
+  @Get('mercadolivre/get-auth-url')
+  @Roles('ROLE_USER', 'ROLE_COMPANY_MANAGER')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async getMercadolivreAuthURL(@Request() req): Promise<string> {
+    const user = await this.getUserCompanyUseCase.execute(req.user.userId);
+
+    return await this.generateMercadolivreAuthURL.execute(user.company);
+  }
+
+  @Get('mercadolivre/set-integration')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async setMercadolivreIntegration(
+    @Request() req,
+    @Query('code') code: string,
+    @Query('state') state: string,
+  ): Promise<string> {
+    return await this.setMercadolivreIntegrationUseCase.execute(code, state);
   }
 
   @EventPattern('apiKey_updated')

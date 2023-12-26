@@ -49,7 +49,7 @@ services:
     networks:
       - app-tier
     env_file:
-      - ./apps/auth/.env.dev
+      - .env.dev
     depends_on:
       - database
       - rabbitmq
@@ -65,7 +65,7 @@ services:
     networks:
       - app-tier
     env_file:
-      - ./apps/sales/.env.dev
+      - .env.dev
     depends_on:
       - database
       - auth
@@ -84,7 +84,7 @@ services:
     networks:
       - app-tier
     env_file:
-      - ./apps/sales-import/.env.dev
+      - .env.dev
     depends_on:
       - database
       - auth

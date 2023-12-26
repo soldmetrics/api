@@ -25,12 +25,13 @@ import { Product } from '@app/common/database/model/entity/product.entity';
 import { ProductSale } from '@app/common/database/model/entity/productSale.entity';
 import { ProductCostChange } from '@app/common/database/model/entity/productCostChange.entity';
 import { JobExecution } from '@app/common/database/model/entity/jobExecution.entity';
+import { Integration } from '@app/common/database/model/entity/integration.entity';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: './apps/sales/.env.dev',
+      envFilePath: '.env.dev',
     }),
     DatabaseModule,
     TypeOrmModule.forFeature([
@@ -47,6 +48,7 @@ import { JobExecution } from '@app/common/database/model/entity/jobExecution.ent
       ProductCostChange,
       JobExecution,
       Device,
+      Integration,
     ]),
   ],
   controllers: [SalesController],

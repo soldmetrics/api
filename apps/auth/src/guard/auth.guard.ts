@@ -12,6 +12,12 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     const previousPath =
       request && request.headers ? request.headers['x-custom-path'] : '';
     const url = `${previousPath}${location}`;
+    const unauthenticatedUrls = [
+      'auth',
+      'health',
+      'sales/receive-sale',
+      'integrations/mercadolivre/set-integration',
+    ];
     const authenticatedUrls = [
       'auth/validateToken',
       'auth/me',
@@ -20,9 +26,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     ];
 
     return !authenticatedUrls.includes(url) &&
-      (previousPath.startsWith('auth') ||
-        previousPath.startsWith('health') ||
-        url.includes('sales/receive-sale'))
+      unauthenticatedUrls.some((e) => url.startsWith(e))
       ? true
       : super.canActivate(context);
   }

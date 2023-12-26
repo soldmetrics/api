@@ -7,7 +7,7 @@ import { BaseUseCase } from '@app/common/utils/baseUseCase';
 import { HttpService } from '@nestjs/axios';
 import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as moment from 'moment';
+// import * as moment from 'moment';
 import { In, Repository } from 'typeorm';
 
 export class ImportLastMonthUseCase extends BaseUseCase {
@@ -94,26 +94,26 @@ export class ImportLastMonthUseCase extends BaseUseCase {
 
   private async importSales(company: Company): Promise<ImportedSaleDTO[]> {
     const importedSales: ImportedSaleDTO[] = [];
-    const externalRepository = company.getExternalRepository(this.httpService);
-    const today = moment().subtract(3, 'hours').format('DD/MM/yyyy');
-    const lastMonth = moment().subtract(30, 'days').format('DD/MM/yyyy');
-    let lastPage = false;
-    let page: number = 1;
+    // const externalRepository = company.getExternalRepository(this.httpService);
+    // const today = moment().subtract(3, 'hours').format('DD/MM/yyyy');
+    // const lastMonth = moment().subtract(30, 'days').format('DD/MM/yyyy');
+    // let lastPage = false;
+    // let page: number = 1;
 
-    while (!lastPage) {
-      const fetchedSales = await externalRepository.getSales(
-        page,
-        lastMonth,
-        today,
-      );
+    // while (!lastPage) {
+    //   const fetchedSales = await externalRepository.getSales(
+    //     page,
+    //     lastMonth,
+    //     today,
+    //   );
 
-      importedSales.push(...fetchedSales);
+    //   importedSales.push(...fetchedSales);
 
-      lastPage = fetchedSales.length < 100;
-      if (!lastPage) {
-        page++;
-      }
-    }
+    //   lastPage = fetchedSales.length < 100;
+    //   if (!lastPage) {
+    //     page++;
+    //   }
+    // }
 
     return importedSales;
   }

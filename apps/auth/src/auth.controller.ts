@@ -22,11 +22,6 @@ import { HandleResetPasswordDTO } from './model/dto/handleResetPasswordDTO';
 import { RegisterDto } from './model/dto/register/registerDTO';
 import { ApiTags } from '@nestjs/swagger';
 import { GetUserAndCompanyUseCase } from '@app/common/utils/getUserCompany.useCase';
-import { SetIntegrationDTO } from './model/dto/setIntegrationDTO';
-import {
-  SetIntegrationResponse,
-  SetIntegrationUseCase,
-} from './useCase/setIntegration.useCase';
 import {
   RegisterDevicePayload,
   RegisterDeviceUseCase,
@@ -45,7 +40,7 @@ export class AuthController {
     private canResetPasswordUseCase: CanResetPasswordUseCase,
     private handleResetPasswordUseCase: HandleResetPasswordUseCase,
     private getUserAndCompanyUseCase: GetUserAndCompanyUseCase,
-    private setIntegrationUseCase: SetIntegrationUseCase,
+    // private setIntegrationUseCase: SetIntegrationUseCase,
     private registerDeviceUseCase: RegisterDeviceUseCase,
     private sendSalesPushNotificationUseCase: SendSalesPushNotificationUseCase,
   ) {}
@@ -95,20 +90,20 @@ export class AuthController {
     return 'Valid token!';
   }
 
-  @Post('/set-integration')
-  @HttpCode(200)
-  async setIntegration(
-    @Req() req,
-    @Body() setIntegrationDTO: SetIntegrationDTO,
-  ): Promise<SetIntegrationResponse> {
-    const user = await this.getUserAndCompanyUseCase.execute(req.user.userId);
+  // @Post('/set-integration')
+  // @HttpCode(200)
+  // async setIntegration(
+  //   @Req() req,
+  //   @Body() setIntegrationDTO: SetIntegrationDTO,
+  // ): Promise<SetIntegrationResponse> {
+  //   const user = await this.getUserAndCompanyUseCase.execute(req.user.userId);
 
-    return this.setIntegrationUseCase.execute(
-      setIntegrationDTO,
-      user.company,
-      req.headers.authorization,
-    );
-  }
+  //   return this.setIntegrationUseCase.execute(
+  //     setIntegrationDTO,
+  //     user.company,
+  //     req.headers.authorization,
+  //   );
+  // }
 
   @Post('/register-device')
   @HttpCode(200)

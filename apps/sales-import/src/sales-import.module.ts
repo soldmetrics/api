@@ -30,12 +30,20 @@ import { RmqModule } from '@app/common/rabbitmq/rabbitmq.module';
 import { JwtStrategy } from 'apps/auth/src/strategy/jwt.strategy';
 import { ImportLastMonthUseCase } from './useCase/importLastMonth.useCase';
 import { AUTH_SERVICE } from '@app/common/config/constants';
+import { GenerateMercadolivreAuthUrlUseCase } from './useCase/generateMercadolivreAuthURL.useCase';
+import { SetMercadolivreIntegrationUseCase } from './useCase/setMercadolivreIntegration.useCase';
+import { Integration } from '@app/common/database/model/entity/integration.entity';
+import { GetUserAndCompanyUseCase } from '@app/common/utils/getUserCompany.useCase';
+import { JwtAuthGuard } from 'apps/auth/src/guard/auth.guard';
+import { RolesGuard } from 'apps/auth/src/guard/roles.guard';
+import { APP_GUARD } from '@nestjs/core';
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: './apps/auth/.env.dev',
+      envFilePath: '.env.dev',
     }),
     DatabaseModule,
     TypeOrmModule.forFeature([
@@ -52,12 +60,17 @@ import { AUTH_SERVICE } from '@app/common/config/constants';
       ProductCostChange,
       JobExecution,
       Device,
+      Integration,
     ]),
     HttpModule,
     ScheduleModule.forRoot(),
     RmqModule,
     RmqModule.register({
       name: AUTH_SERVICE,
+    }),
+    ServeStaticModule.forRoot({
+      // rootPath: join(__dirname, 'apps/sales-import/static'),
+      // serveRoot: 'mercadolivre/redirect',
     }),
   ],
   controllers: [SalesImportController],
@@ -70,6 +83,12 @@ import { AUTH_SERVICE } from '@app/common/config/constants';
     ImportBlingInvoicesProcessor,
     ImportLastMonthUseCase,
     JwtStrategy,
+    GenerateMercadolivreAuthUrlUseCase,
+    SetMercadolivreIntegrationUseCase,
+    GetUserAndCompanyUseCase,
+    JwtStrategy,
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
   ],
 })
 export class SalesImportModule {}

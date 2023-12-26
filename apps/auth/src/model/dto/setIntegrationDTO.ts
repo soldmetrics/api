@@ -1,9 +1,9 @@
-import { Integration } from '@app/common/database';
+import { IntegrationProvider } from '@app/common/database/model/entity/integration.entity';
 import { IsNotEmpty } from 'class-validator';
 
 export class SetIntegrationDTO {
   @IsNotEmpty()
-  integration: Integration;
+  integration: IntegrationProvider;
 
   @IsNotEmpty()
   token: string;

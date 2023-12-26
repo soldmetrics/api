@@ -37,12 +37,13 @@ import { RmqModule } from '@app/common/rabbitmq/rabbitmq.module';
 import { SALES_IMPORT_SERVICE } from '@app/common/config/constants';
 import { RegisterDeviceUseCase } from './useCase/registerDevice.useCase';
 import { SendSalesPushNotificationUseCase } from './useCase/sendSalesPushNotification.useCase';
+import { Integration } from '@app/common/database/model/entity/integration.entity';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: './apps/auth/.env.dev',
+      envFilePath: '.env.dev',
     }),
     DatabaseModule,
     JwtModule.register({
@@ -62,6 +63,7 @@ import { SendSalesPushNotificationUseCase } from './useCase/sendSalesPushNotific
       ProductSale,
       ProductCostChange,
       Device,
+      Integration,
     ]),
     HttpModule,
     RmqModule,
