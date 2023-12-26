@@ -28,7 +28,7 @@ import {
 } from './useCase/registerDevice.useCase';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import { SendSalesPushNotificationUseCase } from './useCase/sendSalesPushNotification.useCase';
-import { ImportedSalesNotificationDTO } from 'apps/sales-import/src/model/dto/importedSalesNotificationDTO';
+import { ImportedSalesNotificationDTO } from 'apps/integrations/src/model/dto/importedSalesNotificationDTO';
 
 @ApiTags('Auth')
 @Controller()

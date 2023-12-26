@@ -34,7 +34,7 @@ import { GetUserAndCompanyUseCase } from '@app/common/utils/getUserCompany.useCa
 import { SetIntegrationUseCase } from './useCase/setIntegration.useCase';
 import { HttpModule } from '@nestjs/axios';
 import { RmqModule } from '@app/common/rabbitmq/rabbitmq.module';
-import { SALES_IMPORT_SERVICE } from '@app/common/config/constants';
+import { INTEGRATIONS_SERVICE } from '@app/common/config/constants';
 import { RegisterDeviceUseCase } from './useCase/registerDevice.useCase';
 import { SendSalesPushNotificationUseCase } from './useCase/sendSalesPushNotification.useCase';
 import { Integration } from '@app/common/database/model/entity/integration.entity';
@@ -68,7 +68,7 @@ import { Integration } from '@app/common/database/model/entity/integration.entit
     HttpModule,
     RmqModule,
     RmqModule.register({
-      name: SALES_IMPORT_SERVICE,
+      name: INTEGRATIONS_SERVICE,
     }),
   ],
   controllers: [AuthController],

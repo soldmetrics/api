@@ -3,7 +3,7 @@ import { BaseUseCase } from '@app/common/utils/baseUseCase';
 import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, IsNull, Not, Repository } from 'typeorm';
-import { ImportedSalesNotificationDTO } from '../../../sales-import/src/model/dto/importedSalesNotificationDTO';
+import { ImportedSalesNotificationDTO } from '../../../integrations/src/model/dto/importedSalesNotificationDTO';
 import { Expo, ExpoPushMessage } from 'expo-server-sdk';
 import { Sale } from '@app/common/database/model/entity/sale.entity';
 

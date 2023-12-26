@@ -8,7 +8,7 @@ RUN npm install
 
 COPY . .
 
-RUN npm run build sales-import
+RUN npm run build integrations
 
 FROM node:18 as production
 
@@ -25,4 +25,4 @@ COPY . .
 
 COPY --from=development /usr/src/app/dist ./dist
 
-CMD ["node", "dist/apps/sales-import/main"]
+CMD ["node", "dist/apps/integrations/main"]

@@ -23,7 +23,7 @@ import { SetMercadolivreIntegrationUseCase } from './useCase/setMercadolivreInte
 
 @ApiTags('Sales Import')
 @Controller()
-export class SalesImportController {
+export class IntegrationsController {
   constructor(
     private readonly receiveSaleUseCase: ReceiveSalesUseCase,
     private importLastMonthUseCase: ImportLastMonthUseCase,

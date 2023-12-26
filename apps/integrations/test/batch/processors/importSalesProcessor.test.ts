@@ -1,6 +1,6 @@
 import { HttpModule } from '@nestjs/axios';
 import { Test } from '@nestjs/testing';
-import { ImportBlingSalesProcessor } from 'apps/sales-import/src/batch/processors/importBlingSalesProcessor';
+import { ImportBlingSalesProcessor } from 'apps/integrations/src/batch/processors/importBlingSalesProcessor';
 
 describe('ImportBlingSalesProcessor - Test Suite', () => {
   let service: ImportBlingSalesProcessor;

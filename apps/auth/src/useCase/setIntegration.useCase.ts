@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 import { SetIntegrationDTO } from '../model/dto/setIntegrationDTO';
 import { HttpService } from '@nestjs/axios';
 import { ClientProxy } from '@nestjs/microservices';
-import { SALES_IMPORT_SERVICE } from '@app/common/config/constants';
+import { INTEGRATIONS_SERVICE } from '@app/common/config/constants';
 import { lastValueFrom } from 'rxjs';
 import { IntegrationProvider } from '@app/common/database/model/entity/integration.entity';
 
@@ -21,7 +21,7 @@ export class SetIntegrationUseCase extends BaseUseCase {
   constructor(
     private httpService: HttpService,
     @InjectRepository(Company) private companyRepository: Repository<Company>,
-    @Inject(SALES_IMPORT_SERVICE) private salesImportClient: ClientProxy,
+    @Inject(INTEGRATIONS_SERVICE) private integrationsClient: ClientProxy,
   ) {
     super();
   }
@@ -57,7 +57,7 @@ export class SetIntegrationUseCase extends BaseUseCase {
       await this.companyRepository.save(company);
 
       await lastValueFrom(
-        this.salesImportClient.emit('apiKey_updated', {
+        this.integrationsClient.emit('apiKey_updated', {
           company,
           Authentication: authToken,
         }),
@@ -70,7 +70,7 @@ export class SetIntegrationUseCase extends BaseUseCase {
       };
 
       if (integration === IntegrationProvider.TINY) {
-        response.callbackUrl = `${process.env.APP_URL}/sales-import/tiny/receive-sale/${company.id}`;
+        response.callbackUrl = `${process.env.APP_URL}/integrations/tiny/receive-sale/${company.id}`;
       }
 
       return response;

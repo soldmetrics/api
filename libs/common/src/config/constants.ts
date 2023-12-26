@@ -1,4 +1,4 @@
-export const SALES_IMPORT_SERVICE = 'SALES_IMPORT';
+export const INTEGRATIONS_SERVICE = 'INTEGRATIONS';
 export const AUTH_SERVICE = 'AUTH';
 
 export const MARKETPLACES = ['MercadoLivre', 'Shopee'];

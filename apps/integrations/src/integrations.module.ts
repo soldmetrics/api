@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
-import { SalesImportController } from './sales-import.controller';
-import { SalesImportService } from './sales-import.service';
+import { IntegrationsController } from './integrations.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   Company,
@@ -69,14 +68,13 @@ import { ServeStaticModule } from '@nestjs/serve-static';
       name: AUTH_SERVICE,
     }),
     ServeStaticModule.forRoot({
-      // rootPath: join(__dirname, 'apps/sales-import/static'),
+      // rootPath: join(__dirname, 'apps/integrations/static'),
       // serveRoot: 'mercadolivre/redirect',
     }),
   ],
-  controllers: [SalesImportController],
+  controllers: [IntegrationsController],
   providers: [
     BlingJob,
-    SalesImportService,
     ReceiveSalesUseCase,
     CleanSalesProcessor,
     ImportBlingSalesProcessor,
@@ -91,4 +89,4 @@ import { ServeStaticModule } from '@nestjs/serve-static';
     { provide: APP_GUARD, useClass: RolesGuard },
   ],
 })
-export class SalesImportModule {}
+export class IntegrationsModule {}
