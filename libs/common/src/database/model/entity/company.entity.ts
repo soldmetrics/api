@@ -39,6 +39,9 @@ export class Company {
   @Column({ type: 'enum', enum: Integration, default: Integration.BLING })
   integration: Integration;
 
+  @Column({ nullable: true })
+  billingCustomerId?: string;
+
   @OneToMany(() => User, (user) => user.company)
   users: User[];
 
