@@ -31,6 +31,9 @@ import {
   RegisterDevicePayload,
   RegisterDeviceUseCase,
 } from './useCase/registerDevice.useCase';
+import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
+import { SendSalesPushNotificationUseCase } from './useCase/sendSalesPushNotification.useCase';
+import { ImportedSalesNotificationDTO } from 'apps/sales-import/src/model/dto/importedSalesNotificationDTO';
 
 @ApiTags('Auth')
 @Controller()
@@ -44,6 +47,7 @@ export class AuthController {
     private getUserAndCompanyUseCase: GetUserAndCompanyUseCase,
     private setIntegrationUseCase: SetIntegrationUseCase,
     private registerDeviceUseCase: RegisterDeviceUseCase,
+    private sendSalesPushNotificationUseCase: SendSalesPushNotificationUseCase,
   ) {}
 
   @Get('/me')
@@ -116,5 +120,25 @@ export class AuthController {
       registerDeviceDTO,
       req.user.userId,
     );
+  }
+
+  @EventPattern('imported_sales')
+  async handleImportedSales(
+    @Payload() data: ImportedSalesNotificationDTO,
+    @Ctx() context: RmqContext,
+  ): Promise<void> {
+    try {
+      console.log('received imported_sales event');
+      return await this.sendSalesPushNotificationUseCase.execute(data);
+    } catch (error) {
+      console.log('Error when sending push notifications');
+      console.log('data: ', data);
+      console.log('error: ', error);
+    } finally {
+      const channel = context.getChannelRef();
+      const originalMsg = context.getMessage();
+
+      channel.ack(originalMsg);
+    }
   }
 }

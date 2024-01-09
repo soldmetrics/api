@@ -18,7 +18,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
   const rmqService = app.get<RmqService>(RmqService);
-  app.connectMicroservice(rmqService.getOptions('BILLING'));
+  app.connectMicroservice(rmqService.getOptions('SALES_IMPORT'));
 
   await app.listen(configService.get('PORT'));
   await app.startAllMicroservices();

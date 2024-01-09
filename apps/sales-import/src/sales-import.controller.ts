@@ -12,7 +12,6 @@ import { ReceiveSaleTinyDTO } from './model/dto/ReceiveSaleDTO';
 import { ReceiveSalesUseCase } from './useCase/receiveSale.useCase';
 import { ApiTags } from '@nestjs/swagger';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
-import { Company } from '@app/common/database';
 import { ImportLastMonthUseCase } from './useCase/importLastMonth.useCase';
 
 @ApiTags('Sales Import')
@@ -38,7 +37,6 @@ export class SalesImportController {
   }
 
   @EventPattern('apiKey_updated')
-  // @UseGuards(JwtAuthGuard)
   async handleApiKeyUpdated(
     @Payload() data: any,
     @Ctx() context: RmqContext,

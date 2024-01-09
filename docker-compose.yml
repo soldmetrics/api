@@ -18,11 +18,14 @@ services:
     volumes:
       - ./api-gateway/nginx.conf:/etc/nginx/conf.d/default.conf
   rabbitmq:
-    image: rabbitmq
+    image: rabbitmq:3-management
     networks:
       - app-tier
     ports:
       - '5672:5672'
+      - '15672:15672'
+    volumes:
+      - 'rabbitmq_data:/data'
   database:
     image: postgres:16.0
     restart: always
@@ -115,3 +118,4 @@ services:
 volumes:
   database:
     driver: local
+  rabbitmq_data:
