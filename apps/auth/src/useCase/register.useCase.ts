@@ -4,7 +4,6 @@ import {
   Role,
   RolesEnum,
   Subscription,
-  SubscriptionStatusEnum,
   User,
 } from '@app/common/database';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
@@ -153,7 +152,10 @@ export class RegisterUseCase extends BaseUseCase {
     newSubscription.startDate = subscriptionData
       ? moment(subscriptionData.startDate).add(3, 'hours').toDate()
       : moment().toDate();
-    newSubscription.status = SubscriptionStatusEnum.ACTIVE;
+
+    newSubscription.endTrial = moment(newSubscription.startDate)
+      .add(1, 'months')
+      .toDate();
 
     return this.subscriptionRepository.save(newSubscription);
   }

@@ -23,6 +23,21 @@ export class Subscription {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({
+    nullable: true,
+  })
+  sessionId: string;
+
+  @Column({
+    nullable: true,
+  })
+  subscriptionId: string;
+
+  @Column({
+    nullable: true,
+  })
+  endTrial: Date;
+
   @ManyToOne(() => Company, (company) => company.subscriptions)
   @JoinColumn()
   company: Company;

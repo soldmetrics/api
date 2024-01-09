@@ -17,12 +17,15 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       'auth/me',
       'auth/set-integration',
       'auth/register-device',
+      'billing/',
     ];
 
     return !authenticatedUrls.includes(url) &&
       (previousPath.startsWith('auth') ||
         previousPath.startsWith('health') ||
-        url.includes('sales/receive-sale'))
+        url.includes('sales/receive-sale') ||
+        url.includes('billing/webhook') ||
+        url.includes('billing/redirect'))
       ? true
       : super.canActivate(context);
   }
